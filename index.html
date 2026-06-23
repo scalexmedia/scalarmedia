@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta name="referrer" content="no-referrer">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScaleX Media | Premium Web Agency</title>
+    
+    <!-- Fonts: Montserrat for bold agency headings, Inter for clean modern body text -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,800;1,900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Montserrat', 'sans-serif'],
+                    },
+                    colors: {
+                        slate: {
+                            850: '#141d2f',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS for Slider, Hover Effects & Animations -->
+    <style>
+        /* Base Resets & Variables */
+        :root {
+            --brand-cyan: #00C6FF;
+            --brand-blue: #0072FF;
+            --brand-gradient: linear-gradient(135deg, var(--brand-cyan) 0%, var(--brand-blue) 100%);
+        }
+
+        body {
+            background-color: #ffffff;
+            color: #0f172a;
+            overflow-x: hidden;
+        }
+
+        /* Typography Utilities */
+        .text-brand-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-image: var(--brand-gradient);
+        }
+        .bg-brand-gradient {
+            background: var(--brand-gradient);
+        }
+
+        /* --- Custom Hero Slider --- */
+        .hero-slider {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.2s;
+            z-index: 1;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 2;
+        }
+
+        /* Ken Burns Effect (Slow zoom on background) */
+        .slide-bg {
+            position: absolute;
+            inset: -5%; /* Prevent white borders on scale */
+            background-size: cover;
+            background-position: center;
+            transform: scale(1.1);
+            transition: transform 8s ease-out;
+            will-change: transform;
+        }
+        
+        .slide.active .slide-bg {
+            transform: scale(1);
+        }
+
+        /* Dark overlay for slider readability */
+        .slide-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%);
+        }
+
+        /* Slider Content Animation */
+        .slide-content {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 1s cubic-bezier(0.22, 1, 0.36, 1);
+            transition-delay: 0.3s;
+        }
+
+        .slide.active .slide-content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Slider Controls */
+        .slider-controls {
+            position: absolute;
+            bottom: 40px;
+            right: 40px;
+            z-index: 10;
+            display: flex;
+            gap: 16px;
+        }
+
+        .slider-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(4px);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .slider-btn:hover {
+            background: white;
+            color: black;
+            transform: scale(1.1);
+            border-color: white;
+        }
+
+        /* --- Advanced Hover Effects (Portfolio Cards) --- */
+        .project-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            cursor: pointer;
+            transform: translateZ(0); /* Hardware acceleration */
+        }
+
+        .project-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .project-card:hover .project-img {
+            transform: scale(1.08);
+        }
+
+        .project-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.4) 50%, rgba(15, 23, 42, 0) 100%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 2.5rem;
+        }
+
+        .project-card:hover .project-overlay {
+            opacity: 1;
+        }
+
+        .project-text {
+            transform: translateY(20px);
+            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .project-card:hover .project-text {
+            transform: translateY(0);
+        }
+
+        /* --- Animated Buttons --- */
+        .btn-premium {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 9999px;
+            font-weight: 600;
+            z-index: 1;
+            transition: all 0.4s ease;
+        }
+
+        .btn-premium::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: left 0.4s ease;
+            z-index: -1;
+        }
+
+        .btn-premium:hover::before {
+            left: 0;
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 198, 255, 0.4);
+        }
+
+        /* Expanding Underline Link */
+        .link-underline {
+            position: relative;
+            display: inline-block;
+        }
+        .link-underline::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            transform: scaleX(0);
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: var(--brand-blue);
+            transform-origin: bottom right;
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .link-underline:hover::after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
+        }
+
+        /* --- Scroll Reveal Animations --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .reveal.is-visible,
+        .reveal-left.is-visible,
+        .reveal-right.is-visible {
+            opacity: 1;
+            transform: translate(0);
+        }
+
+        .delay-100 { transition-delay: 100ms; }
+        .delay-200 { transition-delay: 200ms; }
+        .delay-300 { transition-delay: 300ms; }
+
+        /* Navbar transitions */
+        .navbar-scrolled {
+            background-color: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        .navbar-scrolled .logo-text-black { color: #000; }
+        .navbar-scrolled .nav-link { color: #334155; }
+        .navbar-scrolled .nav-link:hover { color: #000; }
+
+        /* Initial transparent state */
+        nav {
+            padding-top: 1.5rem;
+            padding-bottom: 1.5rem;
+            transition: all 0.4s ease;
+        }
+
+        /* Mobile specific fixes */
+        @media (max-width: 768px) {
+            .slider-controls {
+                bottom: 20px;
+                right: 20px;
+            }
+            .slider-btn {
+                width: 40px;
+                height: 40px;
+            }
+            #sliderDots {
+                bottom: 30px;
+                left: 20px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-blue-200 selection:text-blue-900">
+
+    <!-- Navigation -->
+    <nav id="navbar" class="fixed w-full z-50 top-0 transition-all duration-300">
+        <div class="max-w-[1400px] mx-auto px-6 md:px-12 flex items-center justify-between">
+            <!-- Recreated Branding based on logo -->
+            <a href="#" class="flex flex-col tracking-tight z-50 relative">
+                <div class="flex items-center text-3xl sm:text-4xl leading-none">
+                    <span class="logo-text-black font-display font-black italic text-white transition-colors duration-300">Scale</span>
+                    <span class="font-display font-black italic text-brand-gradient">X</span>
+                </div>
+                <div class="flex w-full items-center pl-1 mt-1">
+                    <div class="h-[1px] w-5 sm:w-6 bg-gray-400"></div>
+                    <span class="logo-text-black text-[8px] sm:text-[10px] font-semibold tracking-[0.3em] text-white ml-2 transition-colors duration-300">MEDIA</span>
+                </div>
+            </a>
+            
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex items-center gap-10">
+                <a href="#expertise" class="nav-link text-white font-medium text-sm tracking-wide link-underline transition-colors duration-300">Expertise</a>
+                <a href="#projects" class="nav-link text-white font-medium text-sm tracking-wide link-underline transition-colors duration-300">Our Work</a>
+                <a href="#process" class="nav-link text-white font-medium text-sm tracking-wide link-underline transition-colors duration-300">Process</a>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <a href="#contact" class="hidden md:inline-flex px-8 py-3.5 bg-brand-gradient text-white text-sm font-bold uppercase tracking-wider btn-premium shadow-lg">
+                    Start Project
+                </a>
+                
+                <!-- Mobile Menu Button -->
+                <button id="mobileMenuBtn" class="md:hidden text-white hover:text-brand-cyan transition-colors z-50 relative p-2 focus:outline-none" aria-label="Toggle Menu">
+                    <i id="mobileMenuIcon" class="fa-solid fa-bars text-2xl nav-link"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileMenu" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-40 hidden flex-col items-center justify-center gap-8 opacity-0 transition-opacity duration-300">
+        <a href="#expertise" class="mobile-nav-link text-white text-2xl font-display font-semibold hover:text-brand-cyan transition-colors">Expertise</a>
+        <a href="#projects" class="mobile-nav-link text-white text-2xl font-display font-semibold hover:text-brand-cyan transition-colors">Our Work</a>
+        <a href="#process" class="mobile-nav-link text-white text-2xl font-display font-semibold hover:text-brand-cyan transition-colors">Process</a>
+        <a href="#contact" class="mobile-nav-link mt-4 px-8 py-4 bg-brand-gradient text-white text-base font-bold uppercase tracking-wider rounded-full shadow-lg">Start Project</a>
+    </div>
+
+    <!-- Custom Hero Slider -->
+    <section class="hero-slider" id="home">
+        
+        <!-- Slide 1: General/Corporate -->
+        <div class="slide active">
+            <div class="slide-bg" style="background-image: url('https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=2070&auto=format&fit=crop');"></div>
+            <div class="slide-overlay"></div>
+            <div class="absolute inset-0 flex items-center">
+                <div class="max-w-[1400px] mx-auto px-6 md:px-12 w-full slide-content">
+                    <div class="inline-block px-4 py-1 border border-white/30 rounded-full text-white text-xs font-semibold tracking-widest uppercase mb-6 backdrop-blur-md">
+                        Digital Dominance
+                    </div>
+                    <h1 class="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-[1.05] tracking-tight mb-4 md:mb-6 max-w-4xl mt-12 md:mt-0">
+                        Engineered for <br />
+                        <span class="text-brand-gradient">Growth.</span>
+                    </h1>
+                    <p class="text-gray-300 text-base sm:text-lg md:text-xl font-light mb-8 md:mb-10 max-w-2xl leading-relaxed">
+                        We build high-performance web applications that transform modern businesses. Expert design. Flawless code. Measurable ROI.
+                    </p>
+                    <a href="#projects" class="px-6 py-4 md:px-10 md:py-5 bg-white text-slate-900 text-xs sm:text-sm font-bold uppercase tracking-wider btn-premium hover:bg-gray-100">
+                        View Showcases <i class="fa-solid fa-arrow-right ml-2 transition-transform group-hover:translate-x-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Real Estate -->
+        <div class="slide">
+            <div class="slide-bg" style="background-image: url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop');"></div>
+            <div class="slide-overlay"></div>
+            <div class="absolute inset-0 flex items-center">
+                <div class="max-w-[1400px] mx-auto px-6 md:px-12 w-full slide-content">
+                    <div class="inline-block px-4 py-1 border border-white/30 rounded-full text-white text-xs font-semibold tracking-widest uppercase mb-6 backdrop-blur-md">
+                        Real Estate Sector
+                    </div>
+                    <h1 class="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-[1.05] tracking-tight mb-4 md:mb-6 max-w-4xl mt-12 md:mt-0">
+                        Elevate Your <br />
+                        <span class="text-brand-gradient">Property</span> Brand.
+                    </h1>
+                    <p class="text-gray-300 text-base sm:text-lg md:text-xl font-light mb-8 md:mb-10 max-w-2xl leading-relaxed">
+                        Immersive property portals with IDX integrations. Capture high-net-worth leads through breathtaking architectural design.
+                    </p>
+                    <a href="#projects" class="px-6 py-4 md:px-10 md:py-5 bg-brand-gradient text-white text-xs sm:text-sm font-bold uppercase tracking-wider btn-premium shadow-[0_10px_30px_rgba(0,198,255,0.3)]">
+                        Learn More
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: E-Commerce -->
+        <div class="slide">
+            <div class="slide-bg" style="background-image: url('src/assets/images/ecommerce_hero_banner_1782212427058.jpg'); background-position: center;"></div>
+            <div class="slide-overlay"></div>
+            <div class="absolute inset-0 flex items-center">
+                <div class="max-w-[1400px] mx-auto px-6 md:px-12 w-full slide-content">
+                    <div class="inline-block px-4 py-1 border border-white/30 rounded-full text-white text-xs font-semibold tracking-widest uppercase mb-6 backdrop-blur-md">
+                        E-Commerce Solutions
+                    </div>
+                    <h1 class="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-[1.05] tracking-tight mb-4 md:mb-6 max-w-4xl mt-12 md:mt-0">
+                        Convert Clicks <br />
+                        into <span class="text-brand-gradient">Customers.</span>
+                    </h1>
+                    <p class="text-gray-300 text-base sm:text-lg md:text-xl font-light mb-8 md:mb-10 max-w-2xl leading-relaxed">
+                        Lightning-fast storefronts optimized for maximum conversion. Seamless checkout experiences that scale with your brand.
+                    </p>
+                    <a href="#projects" class="px-6 py-4 md:px-10 md:py-5 bg-white text-slate-900 text-xs sm:text-sm font-bold uppercase tracking-wider btn-premium hover:bg-gray-100">
+                        View Showcases
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Slider Navigation -->
+        <div class="slider-controls">
+            <button class="slider-btn" id="prevBtn" aria-label="Previous Slide">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <button class="slider-btn" id="nextBtn" aria-label="Next Slide">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+        
+        <!-- Slider Pagination -->
+        <div class="absolute bottom-12 left-6 md:left-12 z-10 flex gap-3" id="sliderDots">
+            <button class="w-12 h-1 rounded-full bg-white transition-all duration-300"></button>
+            <button class="w-12 h-1 rounded-full bg-white/30 hover:bg-white/60 transition-all duration-300"></button>
+            <button class="w-12 h-1 rounded-full bg-white/30 hover:bg-white/60 transition-all duration-300"></button>
+        </div>
+    </section>
+
+    <!-- Logo Cloud / Social Proof -->
+    <section class="py-12 border-b border-gray-100 bg-gray-50">
+        <div class="max-w-[1400px] mx-auto px-6 md:px-12">
+            <p class="text-center text-sm font-semibold text-gray-400 uppercase tracking-widest mb-8">Trusted by scaling teams in every sector</p>
+            <div class="flex flex-wrap justify-center sm:justify-between items-center opacity-40 grayscale gap-8 md:gap-12">
+                <i class="fa-brands fa-aws text-4xl md:text-5xl hover:grayscale-0 hover:opacity-100 transition duration-300"></i>
+                <i class="fa-brands fa-stripe hover:grayscale-0 hover:opacity-100 transition duration-300 text-4xl md:text-5xl"></i>
+                <i class="fa-brands fa-shopify hover:grayscale-0 hover:opacity-100 transition duration-300 text-4xl md:text-5xl"></i>
+                <i class="fa-brands fa-react hover:grayscale-0 hover:opacity-100 transition duration-300 text-4xl md:text-5xl"></i>
+                <i class="fa-brands fa-google hover:grayscale-0 hover:opacity-100 transition duration-300 text-4xl md:text-5xl"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Introduction / Manifesto -->
+    <section class="py-24 md:py-32 bg-white" id="expertise">
+        <div class="max-w-[1400px] mx-auto px-6 md:px-12">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div class="reveal-left">
+                    <h2 class="font-display text-4xl md:text-6xl font-bold leading-[1.1] tracking-tight mb-8 text-slate-900">
+                        We don't build websites.<br>
+                        We build <span class="text-brand-gradient">Businesses.</span>
+                    </h2>
+                    <p class="text-lg text-slate-600 leading-relaxed mb-6">
+                        ScaleX Media is a premium development agency focused exclusively on scalable solutions. We combine stunning aesthetic design with ruthless engineering performance.
+                    </p>
+                    <p class="text-lg text-slate-600 leading-relaxed mb-10">
+                        Whether you are selling high-end real estate, scaling an e-commerce brand, or establishing corporate authority, your digital presence is your most valuable asset. We treat it like one.
+                    </p>
+                    <a href="#contact" class="inline-flex font-bold text-slate-900 border-b-2 border-slate-900 pb-1 hover:text-brand-blue hover:border-brand-blue transition-colors uppercase tracking-wider text-sm">
+                        Schedule a Consultation
+                    </a>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 reveal-right mt-12 lg:mt-0">
+                    <!-- Feature Box -->
+                    <div class="p-8 bg-gray-50 rounded-2xl border border-gray-100 hover:shadow-xl transition-shadow duration-300 group">
+                        <div class="w-14 h-14 bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl text-brand-blue mb-6 group-hover:-translate-y-2 transition-transform duration-300">
+                            <i class="fa-solid fa-code"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-xl mb-3 text-slate-900">Clean Architecture</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed">Lightning-fast load times. 99+ Google Lighthouse scores guaranteed for maximal SEO impact.</p>
+                    </div>
+                    
+                    <!-- Feature Box -->
+                    <div class="p-8 bg-gray-50 rounded-2xl border border-gray-100 hover:shadow-xl transition-shadow duration-300 group mt-0 md:mt-12">
+                        <div class="w-14 h-14 bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl text-brand-blue mb-6 group-hover:-translate-y-2 transition-transform duration-300">
+                            <i class="fa-solid fa-pen-nib"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-xl mb-3 text-slate-900">Award UX/UI</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed">Bespoke design systems tailored to your audience. No templates. Pure custom craftsmanship.</p>
+                    </div>
+                    
+                    <!-- Feature Box -->
+                    <div class="p-8 bg-gray-50 rounded-2xl border border-gray-100 hover:shadow-xl transition-shadow duration-300 group mt-0 md:-mt-12">
+                        <div class="w-14 h-14 bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl text-brand-blue mb-6 group-hover:-translate-y-2 transition-transform duration-300">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-xl mb-3 text-slate-900">Conversion Focus</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed">Every button, animation, and layout decision is engineered to drive users to take action.</p>
+                    </div>
+
+                    <!-- Feature Box -->
+                    <div class="p-8 bg-brand-gradient rounded-2xl shadow-xl text-white hover:-translate-y-2 transition-transform duration-300 flex flex-col justify-center min-h-[160px]">
+                        <h3 class="font-display font-bold text-3xl mb-2 text-center md:text-left">150+</h3>
+                        <p class="text-white/80 font-medium text-center md:text-left">Successful Launches</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Industry Niches (Portfolio Cards with powerful hover effects) -->
+    <section class="py-24 md:py-32 bg-slate-950 text-white" id="projects">
+        <div class="max-w-[1400px] mx-auto px-6 md:px-12">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-16 reveal">
+                <div class="max-w-2xl">
+                    <h2 class="font-display text-4xl md:text-6xl font-bold leading-tight tracking-tight mb-4">
+                        Industry Specialized.
+                    </h2>
+                    <p class="text-slate-400 text-lg">Hover over our core sectors to see the ScaleX aesthetic.</p>
+                </div>
+                <a href="#contact" class="hidden md:inline-block font-bold text-white border-b-2 border-white pb-1 hover:text-brand-cyan hover:border-brand-cyan transition-colors uppercase tracking-wider text-sm">
+                    View Full Portfolio
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Project Card: Real Estate -->
+                <div class="project-card h-[500px] reveal delay-100">
+                    <video src="29a62cb45b3b7c9c55eb76421140c4f6_720w.mp4" class="project-img object-cover w-full h-[550px] object-center" autoplay loop muted playsinline></video>
+                    <div class="project-overlay">
+                        <div class="project-text">
+                            <span class="text-brand-cyan font-semibold tracking-wider uppercase text-xs mb-2 block">Real Estate</span>
+                            <h3 class="font-display text-3xl font-bold mb-3 text-white">Luxury Properties</h3>
+                            <p class="text-gray-300 text-sm mb-6 leading-relaxed">High-converting property listings with immersive video headers, advanced filtering, and instant lead capture capabilities designed for top brokers.</p>
+                            <a href="portfolio.html#real-estate" class="inline-flex items-center text-brand-cyan text-xs font-bold tracking-wider uppercase border border-brand-cyan/50 hover:bg-brand-cyan hover:text-slate-900 px-5 py-2.5 rounded-full transition-all mt-2 w-fit">
+                                View Live Projects <i class="fa-solid fa-arrow-up-right-from-square ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project Card: E-Commerce -->
+                <div class="project-card h-[500px] reveal delay-200">
+                    <video src="video_1782205787.mp4" class="project-img object-cover w-full h-[550px] object-center" autoplay loop muted playsinline></video>
+                    <div class="project-overlay">
+                        <div class="project-text">
+                            <span class="text-brand-cyan font-semibold tracking-wider uppercase text-xs mb-2 block">E-Commerce</span>
+                            <h3 class="font-display text-3xl font-bold mb-3 text-white">Modern Storefronts</h3>
+                            <p class="text-gray-300 text-sm mb-6 leading-relaxed">Headless architecture and Shopify integrations providing lightning-fast shopping experiences, driving lower cart abandonment and higher AOV.</p>
+                            <a href="portfolio.html#ecommerce" class="inline-flex items-center text-brand-cyan text-xs font-bold tracking-wider uppercase border border-brand-cyan/50 hover:bg-brand-cyan hover:text-slate-900 px-5 py-2.5 rounded-full transition-all mt-2 w-fit">
+                                View Live Projects <i class="fa-solid fa-arrow-up-right-from-square ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project Card: Restaurants -->
+                <div class="project-card h-[500px] reveal delay-300">
+                    <video src="8fa5ca768db098c263be2a6f041059ae.mp4" class="project-img object-cover w-full h-[550px] object-center" autoplay loop muted playsinline></video>
+                    <div class="project-overlay">
+                        <div class="project-text">
+                            <span class="text-brand-cyan font-semibold tracking-wider uppercase text-xs mb-2 block">Restaurants</span>
+                            <h3 class="font-display text-3xl font-bold mb-3 text-white">Hospitality Tech</h3>
+                            <p class="text-gray-300 text-sm mb-6 leading-relaxed">Appetizing visual design paired with integrated reservation systems, digital menus, and local SEO to pack your dining room every night.</p>
+                            <a href="portfolio.html#restaurant" class="inline-flex items-center text-brand-cyan text-xs font-bold tracking-wider uppercase border border-brand-cyan/50 hover:bg-brand-cyan hover:text-slate-900 px-5 py-2.5 rounded-full transition-all mt-2 w-fit">
+                                View Live Projects <i class="fa-solid fa-arrow-up-right-from-square ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project Card: Lawyer Firm -->
+                <div class="project-card h-[500px] lg:col-span-2 reveal mt-2">
+                    <video src="34bca49805cebfbb1e4d347f613e9829_720w.mp4" class="project-img object-cover w-full h-[550px] object-center grayscale hover:grayscale-0 transition-all duration-700" autoplay loop muted playsinline></video>
+                    <div class="project-overlay !p-10">
+                        <div class="project-text max-w-2xl">
+                            <span class="text-brand-cyan font-semibold tracking-wider uppercase text-xs mb-2 block">Lawyer Firm</span>
+                            <h3 class="font-display text-4xl font-bold mb-3 text-white">Legal Practices</h3>
+                            <p class="text-gray-300 text-base mb-6 leading-relaxed">Trust-building corporate platforms with secure data compliance, sophisticated lead generation funnels, and authoritative design for prominent legal professionals.</p>
+                            <a href="portfolio.html#lawyer" class="inline-flex items-center text-brand-cyan text-sm font-bold tracking-wider uppercase border border-brand-cyan/50 hover:bg-brand-cyan hover:text-slate-900 px-6 py-3 rounded-full transition-all mt-2 w-fit">
+                                View Live Projects <i class="fa-solid fa-arrow-up-right-from-square ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project Card: And Many More -->
+                <div class="project-card h-[500px] reveal mt-2 bg-slate-900 border border-slate-800 flex flex-col items-center justify-center text-center p-8 group overflow-hidden relative">
+                    <!-- Subtle background glow -->
+                    <div class="absolute inset-0 bg-brand-gradient opacity-0 group-hover:opacity-10 transition-opacity duration-700"></div>
+                    
+                    <div class="relative z-10 flex flex-col items-center justify-center">
+                        <div class="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-brand-cyan transition-all duration-300 border border-slate-700 group-hover:border-brand-cyan shadow-lg">
+                            <i class="fa-solid fa-plus text-2xl text-white"></i>
+                        </div>
+                        <h3 class="font-display text-3xl font-bold mb-3 text-white">And Many More</h3>
+                        <p class="text-gray-400 text-sm mb-8 leading-relaxed max-w-[250px]">We engineer bespoke platforms for automotive, healthcare, fitness, and any sector demanding digital excellence.</p>
+                        <a href="portfolio.html" class="inline-flex items-center text-brand-cyan text-xs font-bold tracking-wider uppercase border-b-2 border-brand-cyan pb-1 hover:text-white hover:border-white transition-all w-fit">
+                            Explore Full Portfolio
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Process Section -->
+    <section class="py-24 md:py-32 bg-white" id="process">
+        <div class="max-w-[1400px] mx-auto px-6 md:px-12">
+            <div class="text-center max-w-3xl mx-auto mb-20 reveal">
+                <span class="text-brand-blue font-semibold tracking-wider uppercase text-xs mb-3 block">Methodology</span>
+                <h2 class="font-display text-4xl md:text-5xl font-bold mb-6 text-slate-900">The ScaleX Process</h2>
+                <p class="text-slate-600 text-lg">A transparent, rigorous, and efficient pipeline to transform your digital presence.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16 lg:gap-8">
+                <!-- Step 1 -->
+                <div class="relative reveal delay-100">
+                    <div class="text-7xl font-display font-black text-gray-100 absolute -top-8 -left-4 -z-10">01</div>
+                    <h3 class="font-bold text-xl mb-3 border-t border-brand-blue pt-4">Strategy</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">Deep dive into your market, competitors, and target demographics to forge a conversion-led blueprint.</p>
+                </div>
+                <!-- Step 2 -->
+                <div class="relative reveal delay-200">
+                    <div class="text-7xl font-display font-black text-gray-100 absolute -top-8 -left-4 -z-10">02</div>
+                    <h3 class="font-bold text-xl mb-3 border-t border-brand-blue pt-4">Design</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">Creating pixel-perfect, interactive prototypes. Establishing typography, color theory, and bespoke aesthetic.</p>
+                </div>
+                <!-- Step 3 -->
+                <div class="relative reveal delay-300">
+                    <div class="text-7xl font-display font-black text-gray-100 absolute -top-8 -left-4 -z-10">03</div>
+                    <h3 class="font-bold text-xl mb-3 border-t border-brand-blue pt-4">Engineering</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">Developing with modern frameworks. Ensuring absolute responsiveness, accessibility, and blistering speed.</p>
+                </div>
+                <!-- Step 4 -->
+                <div class="relative reveal delay-300">
+                    <div class="text-7xl font-display font-black text-gray-100 absolute -top-8 -left-4 -z-10">04</div>
+                    <h3 class="font-bold text-xl mb-3 border-t border-brand-blue pt-4">Scale</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">Rigorous QA, seamless deployment, and continuous optimization to capture maximum market share.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Global CTA -->
+    <section class="py-24 bg-brand-gradient relative overflow-hidden" id="contact">
+        <!-- Abstract graphical element -->
+        <div class="absolute top-0 right-0 transform translate-x-1/3 -translate-y-1/3 opacity-10">
+            <svg width="600" height="600" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#ffffff" d="M47.7,-57.2C59.4,-47.3,64.8,-29,66.3,-11.5C67.8,6,65.4,22.6,56.7,35.8C48,49,33,58.8,15.7,64.2C-1.5,69.5,-21,70.5,-36.8,62.8C-52.5,55,-64.5,38.6,-68.8,20.4C-73.2,2.2,-69.9,-17.8,-59.5,-31.6C-49.1,-45.4,-31.6,-53.1,-15.5,-57.4C0.6,-61.7,16.7,-62.7,47.7,-57.2Z" transform="translate(100 100)" />
+            </svg>
+        </div>
+
+        <div class="max-w-[1400px] mx-auto px-6 md:px-12 relative z-10 grid lg:grid-cols-2 gap-16 items-center">
+            <div class="reveal-left">
+                <h2 class="font-display text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
+                    Ready to outpace the competition?
+                </h2>
+                <p class="text-white/80 text-xl font-light mb-8 max-w-lg">
+                    Partner with the agency that treats your platform like a high-performance asset. Let's discuss your constraints, goals, and vision.
+                </p>
+                
+                <div class="flex items-center gap-6 text-white font-medium">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center"><i class="fa-solid fa-phone"></i></div>
+                        +91 97813 19915
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-3xl p-8 md:p-12 shadow-2xl reveal-right">
+                <h3 class="font-display text-2xl font-bold mb-6 text-slate-900">Request an Estimate</h3>
+                <form id="contactForm" class="space-y-5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-xs font-semibold tracking-wider text-slate-500 uppercase mb-2">First Name *</label>
+                            <input type="text" name="firstName" required class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue transition-colors" placeholder="John">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold tracking-wider text-slate-500 uppercase mb-2">Last Name</label>
+                            <input type="text" name="lastName" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue transition-colors" placeholder="Smith">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold tracking-wider text-slate-500 uppercase mb-2">Email address *</label>
+                        <input type="email" name="email" required class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue transition-colors" placeholder="john@company.com">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold tracking-wider text-slate-500 uppercase mb-2">Company URL (Optional)</label>
+                        <input type="text" name="companyUrl" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue transition-colors" placeholder="www.yourbrand.com">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold tracking-wider text-slate-500 uppercase mb-2">Project Details *</label>
+                        <textarea name="projectDetails" required rows="4" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue transition-colors" placeholder="Tell us about the scope..."></textarea>
+                    </div>
+                    <button type="submit" id="submitBtn" class="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg transition-colors mt-2">
+                        Send Inquiry
+                    </button>
+                    <div id="formMessage" class="hidden text-center font-medium mt-4 p-4 rounded-lg bg-green-50 text-green-700">
+                        Thank you, we will contact you soon.
+                    </div>
+                </form>
+
+                <script>
+                    document.getElementById('contactForm').addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        
+                        const form = e.target;
+                        const submitBtn = document.getElementById('submitBtn');
+                        const formMessage = document.getElementById('formMessage');
+                        const formData = new FormData(form);
+                        
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = 'Sending...';
+                        
+                        fetch('https://script.google.com/macros/s/AKfycbzwOwDtXogszMtNpx1sgYWbIlFkttplrtxgzVulTDSPmYIhWem4eaG3fHGE_HkgvOUu/exec', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => {
+                            formMessage.classList.remove('hidden');
+                            form.reset();
+                        })
+                        .catch(error => {
+                            console.error('Error!', error.message);
+                            formMessage.classList.remove('hidden');
+                            form.reset();
+                        })
+                        .finally(() => {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = 'Send Inquiry';
+                            setTimeout(() => {
+                                formMessage.classList.add('hidden');
+                            }, 5000);
+                        });
+                    });
+                </script>
+            </div>
+        </div>
+    </section>
+
+    <!-- Clean Corporate Footer -->
+    <footer class="bg-slate-950 text-white pt-20 pb-10 border-t border-slate-900">
+        <div class="max-w-[1400px] mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+            <div class="md:col-span-2">
+                <!-- Branding -->
+                <a href="#" class="flex flex-col tracking-tight z-50 mb-6 inline-block">
+                    <div class="flex items-center text-3xl leading-none">
+                        <span class="font-display font-black italic text-white">Scale</span>
+                        <span class="font-display font-black italic text-brand-gradient">X</span>
+                    </div>
+                    <div class="flex w-full items-center pl-1 mt-1">
+                        <div class="h-[1px] w-5 bg-gray-600"></div>
+                        <span class="text-[9px] font-semibold tracking-[0.3em] text-gray-300 ml-2">MEDIA</span>
+                    </div>
+                </a>
+                <p class="text-slate-400 text-sm max-w-sm leading-relaxed mb-8">
+                    Premium digital engineering for modern enterprises. We set the standard for high-performance aesthetics and measurable conversion.
+                </p>
+                <div class="flex gap-4">
+                    <a href="#" class="w-10 h-10 rounded-full border border-slate-800 flex items-center justify-center text-slate-400 hover:bg-white hover:text-slate-950 hover:border-white transition-all"><i class="fa-brands fa-linkedin-in"></i></a>
+                    <a href="#" class="w-10 h-10 rounded-full border border-slate-800 flex items-center justify-center text-slate-400 hover:bg-white hover:text-slate-950 hover:border-white transition-all"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#" class="w-10 h-10 rounded-full border border-slate-800 flex items-center justify-center text-slate-400 hover:bg-white hover:text-slate-950 hover:border-white transition-all"><i class="fa-brands fa-instagram"></i></a>
+                </div>
+            </div>
+            
+            <div>
+                <h4 class="font-bold mb-6 font-display">Specialties</h4>
+                <ul class="space-y-3 text-sm text-slate-400">
+                    <li><a href="#" class="hover:text-brand-cyan transition-colors">Luxury Real Estate</a></li>
+                    <li><a href="#" class="hover:text-brand-cyan transition-colors">Premium E-Commerce</a></li>
+                    <li><a href="#" class="hover:text-brand-cyan transition-colors">Hospitality & Dining</a></li>
+                    <li><a href="#" class="hover:text-brand-cyan transition-colors">Legal Practices & Law Firms</a></li>
+                    <li><a href="#" class="hover:text-brand-cyan transition-colors">Bespoke Custom Solutions</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <address class="not-italic text-sm text-slate-400 space-y-2">
+                    <p class="flex flex-col gap-2">
+                        <a href="tel:+919781319915" class="hover:text-brand-cyan transition-colors">+91 97813 19915</a>
+                    </p>
+                </address>
+            </div>
+        </div>
+        
+        <div class="max-w-[1400px] mx-auto px-6 md:px-12 pt-8 border-t border-slate-900 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500">
+            <p>&copy; 2026 ScaleX Media Agency. All rights reserved.</p>
+            <div class="flex gap-6 mt-4 md:mt-0">
+                <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- Required functionality Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            /* --- Custom Hero Slider Logic --- */
+            const slides = document.querySelectorAll('.slide');
+            const dots = document.querySelectorAll('#sliderDots button');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            let currentSlide = 0;
+            let slideInterval;
+
+            function goToSlide(index) {
+                // Remove active classes
+                slides[currentSlide].classList.remove('active');
+                dots[currentSlide].classList.remove('bg-white');
+                dots[currentSlide].classList.add('bg-white/30');
+                
+                currentSlide = (index + slides.length) % slides.length;
+                
+                // Add active classes
+                slides[currentSlide].classList.add('active');
+                dots[currentSlide].classList.remove('bg-white/30');
+                dots[currentSlide].classList.add('bg-white');
+            }
+
+            function nextSlide() { goToSlide(currentSlide + 1); }
+            function prevSlide() { goToSlide(currentSlide - 1); }
+
+            // Start auto slide
+            function startSlide() {
+                clearInterval(slideInterval);
+                slideInterval = setInterval(nextSlide, 6000); // Change image every 6s
+            }
+
+            // Event Listeners for slider
+            nextBtn.addEventListener('click', () => { nextSlide(); startSlide(); });
+            prevBtn.addEventListener('click', () => { prevSlide(); startSlide(); });
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    goToSlide(index);
+                    startSlide();
+                });
+            });
+
+            startSlide(); // Initial start
+
+
+            /* --- Navbar Scrolling & Mobile Menu functionality --- */
+            const navbar = document.getElementById('navbar');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileMenuIcon = document.getElementById('mobileMenuIcon');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+            let isMenuOpen = false;
+
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('navbar-scrolled');
+                } else {
+                    if(!isMenuOpen) navbar.classList.remove('navbar-scrolled');
+                }
+            });
+
+            function toggleMenu() {
+                isMenuOpen = !isMenuOpen;
+                if (isMenuOpen) {
+                    mobileMenu.classList.remove('hidden');
+                    // Add slight delay to apply opacity transition
+                    setTimeout(() => mobileMenu.classList.remove('opacity-0'), 10);
+                    mobileMenuIcon.classList.remove('fa-bars');
+                    mobileMenuIcon.classList.add('fa-xmark');
+                    navbar.classList.add('navbar-scrolled');
+                } else {
+                    mobileMenu.classList.add('opacity-0');
+                    setTimeout(() => mobileMenu.classList.add('hidden'), 300);
+                    mobileMenuIcon.classList.remove('fa-xmark');
+                    mobileMenuIcon.classList.add('fa-bars');
+                    if (window.scrollY <= 50) {
+                        navbar.classList.remove('navbar-scrolled');
+                    }
+                }
+            }
+
+            mobileMenuBtn.addEventListener('click', toggleMenu);
+            
+            mobileNavLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if(isMenuOpen) toggleMenu();
+                });
+            });
+
+
+            /* --- Intersection Observer for Scroll Reveals (Fade ups) --- */
+            const revealOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.15
+            };
+
+            const revealObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, revealOptions);
+
+            const reveals = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+            reveals.forEach(el => revealObserver.observe(el));
+        });
+    </script>
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/919781319915" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 right-6 z-50 bg-[#25D366] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:scale-110 hover:shadow-2xl transition-all duration-300 group">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-8 h-8 fill-current"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zM223.9 413.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 334.8l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
+        <span class="absolute right-16 bg-white text-slate-800 text-sm font-semibold py-2 px-4 rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap pointer-events-none scale-95 group-hover:scale-100 origin-right">
+            Chat with us
+        </span>
+    </a>
+</body>
+</html>
